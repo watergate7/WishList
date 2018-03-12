@@ -1,0 +1,9 @@
+@import "./content/WishGallery.css";
+@import "./content/MakeWish.css";
+
+.App {
+}
+
+.App-body{
+  padding: 10px;
+}

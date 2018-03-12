@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="WishListModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012.Azure" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Image">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="blob" Type="varbinary(max)" />
+        </EntityType>
+        <EntityType Name="WishItem">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="500" Nullable="false" />
+          <Property Name="type" Type="varchar" MaxLength="300" />
+          <Property Name="brand" Type="varchar" MaxLength="300" />
+          <Property Name="no" Type="varchar" MaxLength="300" />
+          <Property Name="price" Type="int" />
+          <Property Name="imageId" Type="int" />
+        </EntityType>
+        <Association Name="FK_WishItem_Image">
+          <End Role="Image" Type="Self.Image" Multiplicity="0..1" />
+          <End Role="WishItem" Type="Self.WishItem" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Image">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="WishItem">
+              <PropertyRef Name="imageId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="WishListModelStoreContainer">
+          <EntitySet Name="Image" EntityType="Self.Image" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WishItem" EntityType="Self.WishItem" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_WishItem_Image" Association="Self.FK_WishItem_Image">
+            <End Role="Image" EntitySet="Image" />
+            <End Role="WishItem" EntitySet="WishItem" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="WishListModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Image">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="blob" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <NavigationProperty Name="WishItem" Relationship="Self.FK_WishItem_Image" FromRole="Image" ToRole="WishItem" />
+        </EntityType>
+        <EntityType Name="WishItem">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="500" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="type" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
+          <Property Name="brand" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
+          <Property Name="no" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
+          <Property Name="price" Type="Int32" />
+          <Property Name="imageId" Type="Int32" />
+          <NavigationProperty Name="Image" Relationship="Self.FK_WishItem_Image" FromRole="WishItem" ToRole="Image" />
+        </EntityType>
+        <Association Name="FK_WishItem_Image">
+          <End Role="Image" Type="Self.Image" Multiplicity="0..1" />
+          <End Role="WishItem" Type="Self.WishItem" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Image">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="WishItem">
+              <PropertyRef Name="imageId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="WishListEntitiesContext" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Image" EntityType="Self.Image" />
+          <EntitySet Name="WishItem" EntityType="Self.WishItem" />
+          <AssociationSet Name="FK_WishItem_Image" Association="Self.FK_WishItem_Image">
+            <End Role="Image" EntitySet="Image" />
+            <End Role="WishItem" EntitySet="WishItem" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="WishListModelStoreContainer" CdmEntityContainer="WishListEntitiesContext">
+          <EntitySetMapping Name="Image">
+            <EntityTypeMapping TypeName="WishListModel.Image">
+              <MappingFragment StoreEntitySet="Image">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="blob" ColumnName="blob" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WishItem">
+            <EntityTypeMapping TypeName="WishListModel.WishItem">
+              <MappingFragment StoreEntitySet="WishItem">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="type" ColumnName="type" />
+                <ScalarProperty Name="brand" ColumnName="brand" />
+                <ScalarProperty Name="no" ColumnName="no" />
+                <ScalarProperty Name="price" ColumnName="price" />
+                <ScalarProperty Name="imageId" ColumnName="imageId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
