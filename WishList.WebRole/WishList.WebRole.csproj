@@ -187,17 +187,11 @@
 	<Content Include="..\WishList.UI\wishlist\build\manifest.json" />
 	<Content Include="..\WishList.UI\wishlist\build\service-worker.js" />
 	<Content Include="..\WishList.UI\wishlist\build\asset-manifest.json" />	
-	<Content Include="..\WishList.UI\wishlist\build\static\css\main.a7b73e92.css">
-	  <Link>static\css\main.a7b73e92.css</Link>
+	<Content Include="..\WishList.UI\wishlist\build\main.css">
+	  <Link>static\css\main.css</Link>
 	</Content>
-	<Content Include="..\WishList.UI\wishlist\build\static\css\main.a7b73e92.css.map">
-	  <Link>static\css\main.a7b73e92.css.map</Link>
-	</Content>
-	<Content Include="..\WishList.UI\wishlist\build\static\js\main.6168f693.js">
-	  <Link>static\js\main.6168f693.js</Link>
-	</Content>
-	<Content Include="..\WishList.UI\wishlist\build\static\js\main.6168f693.js.map">
-	  <Link>static\js\main.6168f693.js.map</Link>
+	<Content Include="..\WishList.UI\wishlist\build\main.js">
+	  <Link>static\js\main.js</Link>
 	</Content>
   </ItemGroup>
   <ItemGroup>
