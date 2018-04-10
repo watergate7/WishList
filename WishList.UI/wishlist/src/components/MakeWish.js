@@ -1,40 +1,46 @@
 import React, { Component } from 'react';
-import { FormGroup, FormControl, ControlLabel, HelpBlock, Grid, Row, Col, Button } from 'react-bootstrap';
+import { FormGroup, FormControl, ControlLabel, HelpBlock, Grid, Row, Col, Button, Label } from 'react-bootstrap';
+const queryString = require('qs');
 
 class MakeWish extends Component {
     constructor(props) {
         super(props);
-        this.state = { name: '', type: '', brand: '', no: '', price: undefined };
+        this.state = { name: '', type: '', brand: '', no: '', price: undefined, picture: null };
+        var parsed = queryString.parse(this.props.location.search.slice(1));
+        if (parsed.afterAdd == 1) {
+            this.state.afterAdd = "inline";
+        }
+        else {
+            this.state.afterAdd = "none";
+        }
 
         this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     handleChange(event) {
         const name = event.target.id;
-        const value = event.target.value;
+        const value = name == "picture" ? event.target.files[0] : event.target.value;
         this.setState({ [name]: value });
-    }
 
-    handleSubmit(event) {
-        fetch('../api/WishList/Add', {
-            method: 'post',
-            body: JSON.stringify(this.state)
-        }).then(function (response) {
-            alert(response.status);
-        });
-
-        event.preventDefault();
+        if (this.state.afterAdd == "inline") {
+            this.state.afterAdd = "none";
+        }
     }
 
     render() {
         const formInstance = (
-            <form onSubmit={this.handleSubmit}>
+            <form name="wishForm" encType="multipart/form-data" action="../api/WishList/Add" method="post">
                 <Grid>
+                    <Row className="afterAdd">
+                        <Col xs={4} md={4}>
+                            <Label bsStyle="success" style={{ display: this.state.afterAdd }}>You wish is added successfully!</Label>
+                        </Col>
+                    </Row>
                     <Row className="show-grid">
                         <Col xs={4} md={4}>
                             <FieldGroup
                                 id="name"
+                                name="name"
                                 type="text"
                                 label="Name"
                                 value={this.state.name}
@@ -45,6 +51,7 @@ class MakeWish extends Component {
                         <Col xs={4} md={4}>
                             <FieldGroup
                                 id="type"
+                                name="type"
                                 label="Type"
                                 type="text"
                                 value={this.state.type}
@@ -57,6 +64,7 @@ class MakeWish extends Component {
                         <Col xs={4} md={4}>
                             <FieldGroup
                                 id="brand"
+                                name="brand"
                                 label="Brand"
                                 type="text"
                                 value={this.state.brand}
@@ -67,6 +75,7 @@ class MakeWish extends Component {
                         <Col xs={4} md={4}>
                             <FieldGroup
                                 id="no"
+                                name="no"
                                 type="text"
                                 label="Item Number"
                                 value={this.state.no}
@@ -77,6 +86,7 @@ class MakeWish extends Component {
                         <Col xs={4} md={4}>
                             <FieldGroup
                                 id="price"
+                                name="price"
                                 type="number"
                                 label="Estimated Price"
                                 value={this.state.price}
@@ -89,10 +99,12 @@ class MakeWish extends Component {
                         <Col xs={4} md={4}>
                             <FieldGroup
                                 id="picture"
+                                name="picture"
                                 type="file"
                                 label="Picture"
                                 help="Upload a picture here."
                                 accept="image/gif, image/jpeg, image/png"
+                                onChange={this.handleChange}
                             />
                         </Col>
                     </Row>

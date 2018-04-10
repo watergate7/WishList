@@ -6,6 +6,8 @@
     "bootstrap": "^4.0.0",
     "jquery": "^3.3.1",
     "popper.js": "^1.12.9",
+    "qs": "^6.5.1",
+    "query-string": "^6.0.0",
     "react": "^16.2.0",
     "react-bootstrap": "^0.32.1",
     "react-dom": "^16.2.0",
@@ -15,8 +17,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && npm run build:clean",
-    "build:clean": "cd build && move static\\js\\*.js main.js && move static\\css\\*.css main.css && rmdir /s/q static",
+    "build": "react-scripts build && npm run build:copy",
+    "build:copy": "cd build && move *.* ..\\..\\..\\WishList.WebRole && rmdir /s/q ..\\..\\..\\WishList.WebRole\\static && move static ..\\..\\..\\WishList.WebRole",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   }

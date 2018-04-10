@@ -147,6 +147,7 @@
     <Compile Include="Models\WishItem.cs">
       <DependentUpon>WishList.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\WishItemContract.cs" />
     <Compile Include="Models\WishList.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -183,16 +184,29 @@
   </ItemGroup>
   <!-- Reactjs content -->
   <ItemGroup>
-	<Content Include="..\WishList.UI\wishlist\build\index.html" />
-	<Content Include="..\WishList.UI\wishlist\build\manifest.json" />
-	<Content Include="..\WishList.UI\wishlist\build\service-worker.js" />
-	<Content Include="..\WishList.UI\wishlist\build\asset-manifest.json" />	
-	<Content Include="..\WishList.UI\wishlist\build\main.css">
-	  <Link>static\css\main.css</Link>
-	</Content>
-	<Content Include="..\WishList.UI\wishlist\build\main.js">
-	  <Link>static\js\main.js</Link>
-	</Content>
+    <!-- <Content Include="..\WishList.UI\wishlist\build\index.html"> -->
+    <!-- <Link>index.html</Link> -->
+    <!-- </Content> -->
+    <!-- <Content Include="..\WishList.UI\wishlist\build\manifest.json"> -->
+    <!-- <Link>manifest.json</Link> -->
+    <!-- </Content> -->
+    <!-- <Content Include="..\WishList.UI\wishlist\build\service-worker.js"> -->
+    <!-- <Link>service-worker.js</Link> -->
+    <!-- </Content> -->
+    <!-- <Content Include="..\WishList.UI\wishlist\build\asset-manifest.json">	 -->
+    <!-- <Link>asset-manifest.json</Link> -->
+    <!-- </Content> -->
+    <!-- <Content Include="..\WishList.UI\wishlist\build\main.css"> -->
+    <!-- <Link>static\css\main.css</Link> -->
+    <!-- </Content> -->
+    <!-- <Content Include="..\WishList.UI\wishlist\build\main.js"> -->
+    <!-- <Link>static\js\main.js</Link> -->
+    <!-- </Content> -->
+    <Content Include="static\**\*.*" />
+    <Content Include="index.html" />
+    <Content Include="manifest.json" />
+    <Content Include="service-worker.js" />
+    <Content Include="asset-manifest.json" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -225,6 +239,12 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Target Name="BeforeCompile">
+    <CreateItem Include="..\WishList.UI\wishlist\build\**\*.*">
+      <Output TaskParameter="Include" ItemName="ReactjsBuildFiles" />
+    </CreateItem>
+    <Copy SourceFiles="@(ReactjsBuildFiles)" DestinationFiles="@(ReactjsBuildFiles->'.\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
@@ -232,11 +252,4 @@
     <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
   </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
