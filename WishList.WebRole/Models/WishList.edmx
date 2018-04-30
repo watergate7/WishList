@@ -17,12 +17,13 @@
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="name" Type="varchar" MaxLength="500" Nullable="false" />
-          <Property Name="type" Type="varchar" MaxLength="300" />
-          <Property Name="brand" Type="varchar" MaxLength="300" />
-          <Property Name="no" Type="varchar" MaxLength="300" />
+          <Property Name="name" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="type" Type="nvarchar" MaxLength="250" />
+          <Property Name="brand" Type="nvarchar" MaxLength="250" />
+          <Property Name="no" Type="nvarchar" MaxLength="250" />
           <Property Name="price" Type="int" />
           <Property Name="imageId" Type="int" />
+          <Property Name="currency" Type="nvarchar" MaxLength="20" />
         </EntityType>
         <Association Name="FK_WishItem_Image">
           <End Role="Image" Type="Self.Image" Multiplicity="0..1" />
@@ -62,12 +63,13 @@
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="name" Type="String" MaxLength="500" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="type" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
-          <Property Name="brand" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
-          <Property Name="no" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
+          <Property Name="name" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="type" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="brand" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="no" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
           <Property Name="price" Type="Int32" />
           <Property Name="imageId" Type="Int32" />
+          <Property Name="currency" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="Image" Relationship="Self.FK_WishItem_Image" FromRole="WishItem" ToRole="Image" />
         </EntityType>
         <Association Name="FK_WishItem_Image">
@@ -114,6 +116,7 @@
                 <ScalarProperty Name="no" ColumnName="no" />
                 <ScalarProperty Name="price" ColumnName="price" />
                 <ScalarProperty Name="imageId" ColumnName="imageId" />
+                <ScalarProperty Name="currency" ColumnName="currency" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

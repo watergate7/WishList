@@ -4,6 +4,7 @@ class WishGallery extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            isLoading: false,
             wishItems: []
         };
     }
@@ -14,11 +15,16 @@ class WishGallery extends Component {
         //     wishItems: fakeWishes
         // });
 
+        this.setState({
+            isLoading: true
+        });
+
         fetch('../api/WishList/Get')
             .then(res => res.json())
             .then(
                 result => {
                     this.setState({
+                        isLoading: false,
                         wishItems: result
                     });
                 }
@@ -26,7 +32,12 @@ class WishGallery extends Component {
     }
 
     render() {
-        if (this.state.wishItems && this.state.wishItems.length > 0) {
+        if (this.state.isLoading) {
+            return (<div className="wishLoading">
+                Content is loading...
+                </div>);
+        }
+        else if (this.state.wishItems && this.state.wishItems.length > 0) {
             const wishItems = this.state.wishItems;
             wishItems.forEach(wishItem => {
                 wishItem.imgSrc = "data:image/png;base64," + wishItem.base64;
@@ -36,13 +47,16 @@ class WishGallery extends Component {
                 const item = (
                     <div className="wishItem">
                         <div className="inline">
-                            <p>Name: {wishItem.name}</p>
-                            <p>Type: {wishItem.type}</p>
-                            <p>Price: {wishItem.price}</p>
-                            <p>Brand: {wishItem.brand}</p>
+                            <img width="200px" src={wishItem.imgSrc} />
                         </div>
                         <div className="inline">
-                            <img width="200px" src={wishItem.imgSrc} />
+                        <ul className="wishItemDetail">
+                            <li>Name: {wishItem.name}</li>
+                            <li>Type: {wishItem.type}</li>
+                            <li>Price: {wishItem.price}</li>
+                            <li>Currency: {wishItem.currency}</li>
+                            <li>Brand: {wishItem.brand}</li>
+                        </ul>
                         </div>
                     </div>
                 );
@@ -60,7 +74,7 @@ class WishGallery extends Component {
         }
         else {
             return (<div className="wishLoading">
-                Content is loading...
+                Your wishlist is empty, make a wish...
             </div>);
         }
     }

@@ -14,6 +14,7 @@ namespace WishList.WebRole.Models
         public string brand { get; set; }
         public string no { get; set; }
         public Nullable<int> price { get; set; }
+        public string currency { get; set; }
         [JsonIgnore]
         public byte[] blob { get; set; }
         public string base64 { get; set; }

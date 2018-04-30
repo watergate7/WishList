@@ -84,15 +84,26 @@ class MakeWish extends Component {
                             />
                         </Col>
                         <Col xs={4} md={4}>
-                            <FieldGroup
-                                id="price"
-                                name="price"
-                                type="number"
-                                label="Estimated Price"
-                                value={this.state.price}
-                                onChange={this.handleChange}
-                                placeholder="Enter Estimated Price"
-                            />
+                            <Row className="show-grid">
+                                <Col xs={8} md={8}>
+                                    <FieldGroup
+                                        id="price"
+                                        name="price"
+                                        type="number"
+                                        label="Estimated Price"
+                                        value={this.state.price}
+                                        onChange={this.handleChange}
+                                        placeholder="Enter Estimated Price"
+                                    />
+                                </Col>
+                                <Col xs={4} md={4}>
+                                    <CurrencySelect
+                                        id="currency"
+                                        name="currency"
+                                        componentClass="select"
+                                    />
+                                </Col>
+                            </Row>
                         </Col>
                     </Row>
                     <Row>
@@ -125,6 +136,25 @@ function FieldGroup({ id, label, help, ...props }) {
         <FormGroup controlId={id}>
             <ControlLabel>{label}</ControlLabel>
             <FormControl {...props} />
+            {help && <HelpBlock>{help}</HelpBlock>}
+        </FormGroup>
+    );
+}
+
+function CurrencySelect({ id, label, help, ...props }) {
+    return (
+        <FormGroup controlId={id}>
+            <ControlLabel>{label}</ControlLabel>
+            <FormControl {...props}>
+                <option value="EUR">CNY</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="JPY">JPY</option>
+                <option value="AUD">AUD</option>
+                <option value="HKD">HKD</option>
+                <option value="KRW">KRW</option>
+            </FormControl>
             {help && <HelpBlock>{help}</HelpBlock>}
         </FormGroup>
     );

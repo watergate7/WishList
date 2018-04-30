@@ -28,6 +28,7 @@ namespace WishList.WebRole.Controllers
                                                 brand = item.brand,
                                                 no = item.no,
                                                 price = item.price,
+                                                currency = item.currency,
                                                 blob = item.Image.blob
                                             }).ToList();
 
@@ -81,7 +82,8 @@ namespace WishList.WebRole.Controllers
                     type = provider.FormData["type"],
                     brand = provider.FormData["brand"],
                     no = provider.FormData["no"],
-                    price = provider.FormData["price"] == null ? null : (int?)int.Parse(provider.FormData["price"])
+                    price = provider.FormData["price"] == null ? null : (int?)int.Parse(provider.FormData["price"]),
+                    currency = provider.FormData["currency"]
                 };
 
                 if (image != null)

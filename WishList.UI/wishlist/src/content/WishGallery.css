@@ -1,11 +1,15 @@
 .wishContainer{
-    display: flex;  
+    display:flex;
     flex-wrap:wrap;
 }
 
 .wishItem{
     flex-grow: 1;
     margin:10px 0 0 10px;
+}
+
+.wishItemDetail{
+    padding-left:5px;
 }
 
 .inline{
