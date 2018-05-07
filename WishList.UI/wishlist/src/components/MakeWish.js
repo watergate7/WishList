@@ -37,7 +37,7 @@ class MakeWish extends Component {
                         </Col>
                     </Row>
                     <Row className="show-grid">
-                        <Col xs={4} md={4}>
+                        <Col xs={6} md={4}>
                             <FieldGroup
                                 id="name"
                                 name="name"
@@ -48,7 +48,7 @@ class MakeWish extends Component {
                                 placeholder="Enter Name"
                             />
                         </Col>
-                        <Col xs={4} md={4}>
+                        <Col xs={6} md={4}>
                             <FieldGroup
                                 id="type"
                                 name="type"
@@ -61,7 +61,7 @@ class MakeWish extends Component {
                         </Col>
                     </Row>
                     <Row className="show-grid">
-                        <Col xs={4} md={4}>
+                        <Col xs={6} md={4}>
                             <FieldGroup
                                 id="brand"
                                 name="brand"
@@ -72,25 +72,25 @@ class MakeWish extends Component {
                                 placeholder="Enter Brand"
                             />
                         </Col>
-                        <Col xs={4} md={4}>
+                        <Col xs={6} md={4}>
                             <FieldGroup
                                 id="no"
                                 name="no"
                                 type="text"
-                                label="Item Number"
+                                label="Number"
                                 value={this.state.no}
                                 onChange={this.handleChange}
                                 placeholder="Enter Item No."
                             />
                         </Col>
-                        <Col xs={4} md={4}>
+                        <Col xs={9} md={4}>
                             <Row className="show-grid">
                                 <Col xs={8} md={8}>
                                     <FieldGroup
                                         id="price"
                                         name="price"
                                         type="number"
-                                        label="Estimated Price"
+                                        label="Price"
                                         value={this.state.price}
                                         onChange={this.handleChange}
                                         placeholder="Enter Estimated Price"
