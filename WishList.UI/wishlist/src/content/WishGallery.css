@@ -5,16 +5,28 @@
 
 .wishItem{
     flex-grow: 1;
-    margin:10px 0 0 10px;
+    margin:10px;
+    background-color:#ffffff;
+}
+
+.imgContainer{
+    border-right: solid 2px #e8e8e8;
 }
 
 .wishItemDetail{
     padding-left:5px;
+    list-style: none;
 }
 
 .inline{
     float:left;
-    margin:10px;
+    padding:10px;
+    height:200px;
+}
+
+img {
+    max-height:180px; 
+    max-width:300px;   
 }
 
 .wishLoading{

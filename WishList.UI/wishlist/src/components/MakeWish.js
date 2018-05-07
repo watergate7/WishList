@@ -146,7 +146,7 @@ function CurrencySelect({ id, label, help, ...props }) {
         <FormGroup controlId={id}>
             <ControlLabel>{label}</ControlLabel>
             <FormControl {...props}>
-                <option value="EUR">CNY</option>
+                <option value="CNY">CNY</option>
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
                 <option value="GBP">GBP</option>

@@ -46,17 +46,17 @@ class WishGallery extends Component {
             const wishList = wishItems.map(wishItem => {
                 const item = (
                     <div className="wishItem">
-                        <div className="inline">
-                            <img width="200px" src={wishItem.imgSrc} />
+                        <div className="inline imgContainer">
+                            <img src={wishItem.imgSrc} />
                         </div>
                         <div className="inline">
-                        <ul className="wishItemDetail">
-                            <li>Name: {wishItem.name}</li>
-                            <li>Type: {wishItem.type}</li>
-                            <li>Price: {wishItem.price}</li>
-                            <li>Currency: {wishItem.currency}</li>
-                            <li>Brand: {wishItem.brand}</li>
-                        </ul>
+                            <ul className="wishItemDetail">
+                                <li>Name: {wishItem.name}</li>
+                                <li>Type: {wishItem.type}</li>
+                                <li>Price: {wishItem.price}</li>
+                                <li>Currency: {wishItem.currency}</li>
+                                <li>Brand: {wishItem.brand}</li>
+                            </ul>
                         </div>
                     </div>
                 );
