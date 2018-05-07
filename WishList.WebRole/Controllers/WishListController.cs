@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -50,6 +52,11 @@ namespace WishList.WebRole.Controllers
             }
 
             string root = HttpContext.Current.Server.MapPath("~/App_Data");
+            if (!Directory.Exists(root))
+            {
+                Directory.CreateDirectory(root);
+            }
+
             var provider = new MultipartFormDataStreamProvider(root);
 
             try
@@ -58,17 +65,18 @@ namespace WishList.WebRole.Controllers
                 await Request.Content.ReadAsMultipartAsync(provider);
 
                 // Get uploaded image
-                Image image = null;
+                Models.Image image = null;
                 if (provider.FileData.Count > 0)
                 {
                     MultipartFileData file = provider.FileData[0];
                     FileStream fs = new FileStream(file.LocalFileName, FileMode.Open);
                     BinaryReader br = new BinaryReader(fs);
-                    Byte[] bytes = br.ReadBytes((Int32)fs.Length);
+                    byte[] bytes = br.ReadBytes((Int32)fs.Length);
+                    byte[] compressedBytes = VaryQualityLevel(bytes);
 
-                    image = new Image
+                    image = new Models.Image
                     {
-                        blob = bytes
+                        blob = compressedBytes
                     };
                     db.Image.Add(image);
 
@@ -105,6 +113,56 @@ namespace WishList.WebRole.Controllers
             {
                 return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
             }
+        }
+
+        private byte[] VaryQualityLevel(byte[] imageBytes)
+        {
+            Stream compressedImageStream = new MemoryStream();
+            System.Drawing.Image image = null;
+            using (MemoryStream stream = new MemoryStream(imageBytes))
+            {
+                image = System.Drawing.Image.FromStream(stream);
+            }
+
+            // Get a bitmap. The using statement ensures objects  
+            // are automatically disposed from memory after use.  
+            using (Bitmap bmp = new Bitmap(image))
+            {
+                ImageCodecInfo encoder = GetEncoder(ImageFormat.Jpeg);
+
+                // Create an Encoder object based on the GUID  
+                // for the Quality parameter category.  
+                System.Drawing.Imaging.Encoder myEncoder =
+                    System.Drawing.Imaging.Encoder.Quality;
+
+                // Create an EncoderParameters object.  
+                // An EncoderParameters object has an array of EncoderParameter  
+                // objects. In this case, there is only one  
+                // EncoderParameter object in the array.  
+                EncoderParameters myEncoderParameters = new EncoderParameters(1);
+                EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 10L);
+                myEncoderParameters.Param[0] = myEncoderParameter;
+                bmp.Save(compressedImageStream, encoder, myEncoderParameters);
+                compressedImageStream.Position = 0;
+                BinaryReader br = new BinaryReader(compressedImageStream);
+                byte[] compressed = br.ReadBytes((Int32)compressedImageStream.Length);
+
+                return compressed;
+            }
+        }
+
+        private ImageCodecInfo GetEncoder(ImageFormat format)
+        {
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
+            foreach (ImageCodecInfo codec in codecs)
+            {
+                if (codec.FormatID == format.Guid)
+                {
+                    return codec;
+                }
+            }
+
+            return null;
         }
     }
 }
