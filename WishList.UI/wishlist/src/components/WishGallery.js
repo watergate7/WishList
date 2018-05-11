@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Button } from 'react-bootstrap';
 
 class WishGallery extends Component {
     constructor(props) {
@@ -53,10 +54,14 @@ class WishGallery extends Component {
                             <ul className="wishItemDetail">
                                 <li>Name: {wishItem.name}</li>
                                 <li>Type: {wishItem.type}</li>
+                                <li>Brand: {wishItem.brand}</li>
+                                <li>Number: {wishItem.no}</li>
                                 <li>Price: {wishItem.price}</li>
                                 <li>Currency: {wishItem.currency}</li>
-                                <li>Brand: {wishItem.brand}</li>
                             </ul>
+                            <div className="operationBar">
+                                <Button bsStyle="danger">Delete</Button>
+                            </div>
                         </div>
                     </div>
                 );
