@@ -13,6 +13,9 @@ WishList.UI/wishlist/chrome/
 # WebRole AppData
 WishList.WebRole/App_Data/
 
+# WebRole Web.config
+WishList.WebRole/Web.config
+
 # Reactjs auto generated
 WishList.WebRole/asset-manifest.json
 WishList.WebRole/favicon.ico
