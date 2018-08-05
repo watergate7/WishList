@@ -123,57 +123,55 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
-    <Content Include="Models\WishList.Context.tt">
+    <Content Include="Models\WishiListContext.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>WishList.edmx</DependentUpon>
-      <LastGenOutput>WishList.Context.cs</LastGenOutput>
+      <DependentUpon>WishiListContext.edmx</DependentUpon>
+      <LastGenOutput>WishiListContext.Context.cs</LastGenOutput>
     </Content>
-    <Content Include="Models\WishList.tt">
+    <Content Include="Models\WishiListContext.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>WishList.edmx</DependentUpon>
-      <LastGenOutput>WishList.cs</LastGenOutput>
+      <DependentUpon>WishiListContext.edmx</DependentUpon>
+      <LastGenOutput>WishiListContext.cs</LastGenOutput>
     </Content>
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\WishListController.cs" />
+	<Compile Include="DataProviders\AzureBlobStorageProvider.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\Image.cs">
-      <DependentUpon>WishList.tt</DependentUpon>
+    <Compile Include="Models\WishiListContext.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>WishiListContext.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\WishiListContext.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>WishiListContext.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\WishiListContext.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>WishiListContext.edmx</DependentUpon>
     </Compile>
     <Compile Include="Models\WishItem.cs">
-      <DependentUpon>WishList.tt</DependentUpon>
+      <DependentUpon>WishiListContext.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\WishItemContract.cs" />
-    <Compile Include="Models\WishList.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>WishList.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\WishList.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>WishList.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\WishList.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>WishList.edmx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebRole.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
-    <EntityDeploy Include="Models\WishList.edmx">
+    <EntityDeploy Include="Models\WishiListContext.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>WishList.Designer.cs</LastGenOutput>
+      <LastGenOutput>WishiListContext.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <Content Include="Models\WishList.edmx.diagram">
-      <DependentUpon>WishList.edmx</DependentUpon>
+    <Content Include="Models\WishiListContext.edmx.diagram">
+      <DependentUpon>WishiListContext.edmx</DependentUpon>
     </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -210,6 +208,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="DataProviders\" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

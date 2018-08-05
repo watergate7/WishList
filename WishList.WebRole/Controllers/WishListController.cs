@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -9,18 +10,24 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using WishList.WebRole.DataProviders;
 using WishList.WebRole.Models;
 
 namespace WishList.WebRole.Controllers
 {
     public class WishListController : ApiController
     {
-        private WishListEntitiesContext db = new WishListEntitiesContext();
+        private WishlistEntities db = new WishlistEntities();
+
+        private AzureBlobStorageProvider blobProvider = new AzureBlobStorageProvider(ConfigurationManager.AppSettings["AzureBlobStorage"]);
+
+        private const string blobContainer = "images";
 
         [HttpGet]
-        public List<WishItemContract> Get()
+        [Route("get")]
+        public async Task<List<WishItemContract>> Get()
         {
-            db.Database.CommandTimeout = 60 * 5;
+            db.Database.CommandTimeout = 60 * 1;
             List<WishItemContract> items = (from item in db.WishItem
                                             select new WishItemContract
                                             {
@@ -29,14 +36,23 @@ namespace WishList.WebRole.Controllers
                                                 type = item.type,
                                                 brand = item.brand,
                                                 no = item.no,
+                                                comment = item.comment,
                                                 price = item.price,
                                                 currency = item.currency,
-                                                blob = item.Image.blob
+                                                imageId = item.imageId,
                                             }).ToList();
 
             foreach (WishItemContract item in items)
             {
-                item.base64 = Convert.ToBase64String(item.blob);
+                if (await blobProvider.ExistsAsync(WishListController.blobContainer, item.imageId))
+                {
+                    Stream stream = await blobProvider.GetBlobDataAsync(WishListController.blobContainer, item.imageId);
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        stream.CopyTo(ms);
+                        item.base64 = Convert.ToBase64String(ms.ToArray());
+                    }
+                }
             }
 
             return items;
@@ -65,7 +81,7 @@ namespace WishList.WebRole.Controllers
                 await Request.Content.ReadAsMultipartAsync(provider);
 
                 // Get uploaded image
-                Models.Image image = null;
+                Guid guid = Guid.NewGuid();
                 if (provider.FileData.Count > 0)
                 {
                     MultipartFileData file = provider.FileData[0];
@@ -74,11 +90,9 @@ namespace WishList.WebRole.Controllers
                     byte[] bytes = br.ReadBytes((Int32)fs.Length);
                     byte[] compressedBytes = VaryQualityLevel(bytes);
 
-                    image = new Models.Image
-                    {
-                        blob = compressedBytes
-                    };
-                    db.Image.Add(image);
+                    // Save blob to azure blob storage
+                    MemoryStream ms = new MemoryStream(compressedBytes);
+                    await blobProvider.SaveBlobDataAsync(WishListController.blobContainer, guid.ToString(), ms);
 
                     fs.Close();
                     br.Close();
@@ -90,15 +104,11 @@ namespace WishList.WebRole.Controllers
                     type = provider.FormData["type"],
                     brand = provider.FormData["brand"],
                     no = provider.FormData["no"],
+                    comment = provider.FormData["comment"],
                     price = provider.FormData["price"] == null ? null : (int?)int.Parse(provider.FormData["price"]),
-                    currency = provider.FormData["currency"]
+                    currency = provider.FormData["currency"],
+                    imageId = guid.ToString()
                 };
-
-                if (image != null)
-                {
-                    wishItem.imageId = image.ID;
-                    wishItem.Image = image;
-                }
 
                 db.WishItem.Add(wishItem);
                 db.SaveChanges();
@@ -113,6 +123,31 @@ namespace WishList.WebRole.Controllers
             {
                 return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
             }
+        }
+
+        [HttpGet]
+        [Route("delete")]
+        public async Task<HttpResponseMessage> Delete(int id)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            IQueryable<WishItem> toDeleteItems = db.WishItem.Where(x => x.ID == id);
+
+            if (toDeleteItems.Count() <= 0)
+            {
+                response.Content = new StringContent("Specified item id not found.");
+                response.StatusCode = HttpStatusCode.NotFound;
+                return response;
+            }
+
+            WishItem toDeleteItem = toDeleteItems.First();
+            db.WishItem.Remove(toDeleteItem);
+
+            // delete blob from azure blob storage
+            await blobProvider.DeleteBlobDataAsync(WishListController.blobContainer, toDeleteItem.imageId);
+
+            response.Content = new StringContent("Delete item successfully.");
+            response.StatusCode = HttpStatusCode.OK;
+            return response;
         }
 
         private byte[] VaryQualityLevel(byte[] imageBytes)

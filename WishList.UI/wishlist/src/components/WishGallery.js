@@ -11,25 +11,63 @@ class WishGallery extends Component {
     }
 
     componentDidMount() {
-        // const fakeWishes = require('../mock_data/wishes.json');
-        // this.setState({
-        //     wishItems: fakeWishes
-        // });
-
+        const fakeWishes = require('../mock_data/wishes.json');
         this.setState({
-            isLoading: true
+            wishItems: fakeWishes
         });
 
-        fetch('../api/WishList/Get')
-            .then(res => res.json())
-            .then(
-                result => {
-                    this.setState({
-                        isLoading: false,
-                        wishItems: result
-                    });
-                }
-            );
+        // this.setState({
+        //     isLoading: true
+        // });
+
+        // fetch('../api/WishList/Get')
+        //     .then(res => res.json())
+        //     .then(
+        //         result => {
+        //             this.setState({
+        //                 isLoading: false,
+        //                 wishItems: result
+        //             });
+        //         }
+        //     );
+    }
+
+    onDelete(id) {
+        // fetch('../api/WishList/Delete?id=' + id)
+        //     .then(
+        //         result => {
+        //             var index = this.state.wishItems.findIndex(x => x.ID == id);
+        //             this.state.wishItems.splice(index, 1);
+
+        //             this.setState({
+        //                 wishItems: this.state.wishItems
+        //             });
+        //         }
+        //     )
+        //     .catch(
+        //         error => {
+        //             alert(error);
+        //         }
+        //     )
+    }
+
+    onComplete(id) {
+        // fetch('../api/WishList/Delete?id=' + id)
+        //     .then(
+        //         result => {
+        //             var index = this.state.wishItems.findIndex(x => x.ID == id);
+        //             this.state.wishItems.splice(index, 1);
+
+        //             this.setState({
+        //                 wishItems: this.state.wishItems
+        //             });
+        //         }
+        //     )
+        //     .catch(
+        //         error => {
+        //             alert(error);
+        //         }
+        //     )
     }
 
     render() {
@@ -51,17 +89,26 @@ class WishGallery extends Component {
                             <img src={wishItem.imgSrc} />
                         </div>
                         <div className="inline">
-                            <ul className="wishItemDetail">
-                                <li>Name: {wishItem.name}</li>
-                                <li>Type: {wishItem.type}</li>
-                                <li>Brand: {wishItem.brand}</li>
-                                <li>Number: {wishItem.no}</li>
-                                <li>Price: {wishItem.price}</li>
-                                <li>Currency: {wishItem.currency}</li>
-                            </ul>
-                            <div className="operationBar">
-                                <Button bsStyle="danger">Delete</Button>
+                            <div className="wishItemDetail">
+                                <div style={{ color: !wishItem.status || wishItem.status.toLowerCase() == 'active' ? '#1E90FF' : '#228B22' }}>Status: {wishItem.status}</div>
+                                <ul style={{ listStyle: 'none', paddingLeft: '0px' }}>
+                                    <li>Name: {wishItem.name}</li>
+                                    <li>Type: {wishItem.type}</li>
+                                    <li>Brand: {wishItem.brand}</li>
+                                    <li>Number: {wishItem.no}</li>
+                                    <li>Price: {wishItem.price}</li>
+                                    <li>Currency: {wishItem.currency}</li>
+                                </ul>
+                                {!!wishItem.feedback ?
+                                    <div className="feedback">
+                                        {wishItem.feedback}
+                                    </div> : null
+                                }
                             </div>
+                        </div>
+                        <div className="operationBar">
+                            <Button bsStyle="success" onClick={this.onComplete(wishItem.ID)}>Complete</Button>
+                            <Button bsStyle="danger" onClick={this.onDelete(wishItem.ID)}>Delete</Button>
                         </div>
                     </div>
                 );
