@@ -1,38 +1,47 @@
 .wishContainer{
-    display:flex;
-    flex-wrap:wrap;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
 }
 
 .wishItem{
-    flex-grow: 1;
-    margin:10px;
+    flex: 0 0 32%;
+    margin: 10px;
     background-color:#ffffff;
 }
 
+.wishItem:last-child{
+    flex-grow: 0;
+}
+
+.displayBar{
+    padding: 10px;
+    max-width: 800px;
+    min-width: 200px;
+}
+
 .imgContainer{
-    border-right: solid 2px #e8e8e8;
+    float:left;
+    margin-bottom: 15px;
+    margin-right: 15px;
+    height: 200px;
+    width: 200px;
 }
 
 .wishItemDetail{
-    padding-left:5px;
-    width:150px;
+    float:left;
+    padding-left:10px;
+    width:200px;
 }
 
 .operationBar{
-    border-top: solid 2px #e8e8e8;
-    padding:5px;
-}
-
-.inline{
-    float:left;
+    clear: both;
     padding:10px;
-    height:200px;
-    position: relative;
 }
 
 img {
-    max-height:180px; 
-    max-width:300px;   
+    max-height:200px; 
+    max-width:200px;   
 }
 
 .wishLoading{

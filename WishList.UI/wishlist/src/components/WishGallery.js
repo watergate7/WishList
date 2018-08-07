@@ -85,10 +85,10 @@ class WishGallery extends Component {
             const wishList = wishItems.map(wishItem => {
                 const item = (
                     <div className="wishItem">
-                        <div className="inline imgContainer">
-                            <img src={wishItem.imgSrc} />
-                        </div>
-                        <div className="inline">
+                        <div className="displayBar">
+                            <div className="imgContainer">
+                                <img src={wishItem.imgSrc} />
+                            </div>
                             <div className="wishItemDetail">
                                 <div style={{ color: !wishItem.status || wishItem.status.toLowerCase() == 'active' ? '#1E90FF' : '#228B22' }}>Status: {wishItem.status}</div>
                                 <ul style={{ listStyle: 'none', paddingLeft: '0px' }}>
@@ -98,12 +98,13 @@ class WishGallery extends Component {
                                     <li>Number: {wishItem.no}</li>
                                     <li>Price: {wishItem.price}</li>
                                     <li>Currency: {wishItem.currency}</li>
+                                    <li>Comment: {wishItem.comment}</li>
                                 </ul>
-                                {!!wishItem.feedback ?
-                                    <div className="feedback">
-                                        {wishItem.feedback}
-                                    </div> : null
-                                }
+                                <div className="feedback">
+                                    {!!wishItem.feedback ?
+                                        wishItem.feedback : null
+                                    }
+                                </div>
                             </div>
                         </div>
                         <div className="operationBar">
