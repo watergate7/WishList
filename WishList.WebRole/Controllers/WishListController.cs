@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -24,7 +25,6 @@ namespace WishList.WebRole.Controllers
         private const string blobContainer = "images";
 
         [HttpGet]
-        [Route("get")]
         public async Task<List<WishItemContract>> Get()
         {
             db.Database.CommandTimeout = 60 * 1;
@@ -49,6 +49,7 @@ namespace WishList.WebRole.Controllers
                     Stream stream = await blobProvider.GetBlobDataAsync(WishListController.blobContainer, item.imageId);
                     using (MemoryStream ms = new MemoryStream())
                     {
+                        stream.Position = 0;
                         stream.CopyTo(ms);
                         item.base64 = Convert.ToBase64String(ms.ToArray());
                     }
@@ -88,11 +89,22 @@ namespace WishList.WebRole.Controllers
                     FileStream fs = new FileStream(file.LocalFileName, FileMode.Open);
                     BinaryReader br = new BinaryReader(fs);
                     byte[] bytes = br.ReadBytes((Int32)fs.Length);
-                    byte[] compressedBytes = VaryQualityLevel(bytes);
+
+                    // Get Image from bytes
+                    Image image = null;
+                    using (MemoryStream stream = new MemoryStream(bytes))
+                    {
+                        image = Image.FromStream(stream);
+                    }
+
+                    // Resize the image and compress
+                    int width, height;
+                    this.GetImageSize(image, 500, out width, out height);
+                    Bitmap resized = this.ResizeImage(image, width, height);
+                    Stream compressed = this.VaryQualityLevel(resized, 80L);
 
                     // Save blob to azure blob storage
-                    MemoryStream ms = new MemoryStream(compressedBytes);
-                    await blobProvider.SaveBlobDataAsync(WishListController.blobContainer, guid.ToString(), ms);
+                    await blobProvider.SaveBlobDataAsync(WishListController.blobContainer, guid.ToString(), compressed);
 
                     fs.Close();
                     br.Close();
@@ -119,15 +131,14 @@ namespace WishList.WebRole.Controllers
 
                 return response;
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
             }
         }
 
-        [HttpGet]
-        [Route("delete")]
-        public async Task<HttpResponseMessage> Delete(int id)
+        [HttpPost]
+        public async Task<HttpResponseMessage> Delete([FromBody] int id)
         {
             HttpResponseMessage response = new HttpResponseMessage();
             IQueryable<WishItem> toDeleteItems = db.WishItem.Where(x => x.ID == id);
@@ -141,6 +152,7 @@ namespace WishList.WebRole.Controllers
 
             WishItem toDeleteItem = toDeleteItems.First();
             db.WishItem.Remove(toDeleteItem);
+            db.SaveChanges();
 
             // delete blob from azure blob storage
             await blobProvider.DeleteBlobDataAsync(WishListController.blobContainer, toDeleteItem.imageId);
@@ -150,14 +162,15 @@ namespace WishList.WebRole.Controllers
             return response;
         }
 
-        private byte[] VaryQualityLevel(byte[] imageBytes)
+        /// <summary>
+        /// Compresse the image.
+        /// </summary>
+        /// <param name="image">The image to resize.</param>
+        /// <param name="quality">The compress quality.</param>
+        /// <returns>The compressed image stream.</returns>
+        private Stream VaryQualityLevel(Image image, long quality)
         {
             Stream compressedImageStream = new MemoryStream();
-            System.Drawing.Image image = null;
-            using (MemoryStream stream = new MemoryStream(imageBytes))
-            {
-                image = System.Drawing.Image.FromStream(stream);
-            }
 
             // Get a bitmap. The using statement ensures objects  
             // are automatically disposed from memory after use.  
@@ -167,25 +180,27 @@ namespace WishList.WebRole.Controllers
 
                 // Create an Encoder object based on the GUID  
                 // for the Quality parameter category.  
-                System.Drawing.Imaging.Encoder myEncoder =
-                    System.Drawing.Imaging.Encoder.Quality;
+                Encoder myEncoder = Encoder.Quality;
 
                 // Create an EncoderParameters object.  
                 // An EncoderParameters object has an array of EncoderParameter  
                 // objects. In this case, there is only one  
                 // EncoderParameter object in the array.  
                 EncoderParameters myEncoderParameters = new EncoderParameters(1);
-                EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 10L);
+                EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, quality);
                 myEncoderParameters.Param[0] = myEncoderParameter;
                 bmp.Save(compressedImageStream, encoder, myEncoderParameters);
                 compressedImageStream.Position = 0;
-                BinaryReader br = new BinaryReader(compressedImageStream);
-                byte[] compressed = br.ReadBytes((Int32)compressedImageStream.Length);
 
-                return compressed;
+                return compressedImageStream;
             }
         }
 
+        /// <summary>
+        /// Get image encoder.
+        /// </summary>
+        /// <param name="format">The image format.</param>
+        /// <returns>Image CodecInfo.</returns>
         private ImageCodecInfo GetEncoder(ImageFormat format)
         {
             ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
@@ -198,6 +213,59 @@ namespace WishList.WebRole.Controllers
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Resize the image to the specified width and height.
+        /// </summary>
+        /// <param name="image">The image to resize.</param>
+        /// <param name="width">The width to resize to.</param>
+        /// <param name="height">The height to resize to.</param>
+        /// <returns>The resized image.</returns>
+        private Bitmap ResizeImage(Image image, int width, int height)
+        {
+            var destRect = new Rectangle(0, 0, width, height);
+            var destImage = new Bitmap(width, height);
+
+            destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+            using (var graphics = Graphics.FromImage(destImage))
+            {
+                graphics.CompositingMode = CompositingMode.SourceCopy;
+                graphics.CompositingQuality = CompositingQuality.HighQuality;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                using (var wrapMode = new ImageAttributes())
+                {
+                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                    graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+                }
+            }
+
+            return destImage;
+        }
+
+        /// <summary>
+        /// Resize the image to the specified width and height.
+        /// </summary>
+        /// <param name="image">The image to resize.</param>
+        /// <param name="max">The max width/height size.</param>
+        /// <param name="width">The width to resize to.</param>
+        /// <param name="height">The height to resize to.</param>
+        private void GetImageSize(Image image, int max, out int width, out int height)
+        {
+            if (image.Width > image.Height)
+            {
+                height = (int)((double)max / image.Width * image.Height);
+                width = max;
+            }
+            else
+            {
+                width = (int)((double)max / image.Height * image.Width);
+                height = max;
+            }
         }
     }
 }

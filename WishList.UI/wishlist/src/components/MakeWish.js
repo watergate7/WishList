@@ -5,7 +5,7 @@ const queryString = require('qs');
 class MakeWish extends Component {
     constructor(props) {
         super(props);
-        this.state = { name: '', type: '', brand: '', no: '', price: undefined, picture: null };
+        this.state = { name: '', type: '', brand: '', no: '', comment: '', price: undefined, picture: null };
         var parsed = queryString.parse(this.props.location.search.slice(1));
         if (parsed.afterAdd == 1) {
             this.state.afterAdd = "inline";
@@ -104,6 +104,19 @@ class MakeWish extends Component {
                                     />
                                 </Col>
                             </Row>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col xs={12} md={12}>
+                            <FieldGroup
+                                id="comment"
+                                name="comment"
+                                label="Comment"
+                                componentClass="textarea"
+                                placeholder="Comment..."
+                                value={this.state.comment}
+                                onChange={this.handleChange}
+                            />
                         </Col>
                     </Row>
                     <Row>

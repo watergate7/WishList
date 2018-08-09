@@ -11,44 +11,56 @@ class WishGallery extends Component {
     }
 
     componentDidMount() {
-        const fakeWishes = require('../mock_data/wishes.json');
-        this.setState({
-            wishItems: fakeWishes
-        });
-
+        // const fakeWishes = require('../mock_data/wishes.json');
         // this.setState({
-        //     isLoading: true
+        //     wishItems: fakeWishes
         // });
 
-        // fetch('../api/WishList/Get')
-        //     .then(res => res.json())
-        //     .then(
-        //         result => {
-        //             this.setState({
-        //                 isLoading: false,
-        //                 wishItems: result
-        //             });
-        //         }
-        //     );
+        this.setState({
+            isLoading: true
+        });
+
+        fetch('../api/WishList/Get')
+            .then(res => res.json())
+            .then(
+                result => {
+                    this.setState({
+                        isLoading: false,
+                        wishItems: result
+                    });
+                }
+            );
     }
 
     onDelete(id) {
-        // fetch('../api/WishList/Delete?id=' + id)
-        //     .then(
-        //         result => {
-        //             var index = this.state.wishItems.findIndex(x => x.ID == id);
-        //             this.state.wishItems.splice(index, 1);
+        if (!window.confirm("This wish will be deleted!")) {
+            return;
+        }
 
-        //             this.setState({
-        //                 wishItems: this.state.wishItems
-        //             });
-        //         }
-        //     )
-        //     .catch(
-        //         error => {
-        //             alert(error);
-        //         }
-        //     )
+        fetch('../api/WishList/Delete',
+            {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(id)
+            })
+            .then(
+                result => {
+                    var index = this.state.wishItems.findIndex(x => x.ID == id);
+                    this.state.wishItems.splice(index, 1);
+
+                    this.setState({
+                        wishItems: this.state.wishItems
+                    });
+                }
+            )
+            .catch(
+                error => {
+                    alert(error);
+                }
+            )
     }
 
     onComplete(id) {
@@ -108,8 +120,8 @@ class WishGallery extends Component {
                             </div>
                         </div>
                         <div className="operationBar">
-                            <Button bsStyle="success" onClick={this.onComplete(wishItem.ID)}>Complete</Button>
-                            <Button bsStyle="danger" onClick={this.onDelete(wishItem.ID)}>Delete</Button>
+                            <Button bsStyle="success" onClick={() => { this.onComplete(wishItem.ID) }}>Complete</Button>
+                            <Button bsStyle="danger" onClick={() => { this.onDelete(wishItem.ID) }}>Delete</Button>
                         </div>
                     </div>
                 );
