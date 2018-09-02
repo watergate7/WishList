@@ -48,7 +48,7 @@ class WishGallery extends Component {
             })
             .then(
                 result => {
-                    var index = this.state.wishItems.findIndex(x => x.ID == id);
+                    var index = this.state.wishItems.findIndex(x => x.ID === id);
                     this.state.wishItems.splice(index, 1);
 
                     this.setState({
@@ -64,22 +64,41 @@ class WishGallery extends Component {
     }
 
     onComplete(id) {
-        // fetch('../api/WishList/Delete?id=' + id)
-        //     .then(
-        //         result => {
-        //             var index = this.state.wishItems.findIndex(x => x.ID == id);
-        //             this.state.wishItems.splice(index, 1);
+        var feedback = window.prompt("Enter your feelings on completing the wish")
+        if (feedback === null || feedback === "") {
+            return;
+        }
 
-        //             this.setState({
-        //                 wishItems: this.state.wishItems
-        //             });
-        //         }
-        //     )
-        //     .catch(
-        //         error => {
-        //             alert(error);
-        //         }
-        //     )
+        fetch('../api/WishList/Complete?id=' + id,
+            {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(feedback)
+            })
+            .then(
+                result => {
+                    fetch('../api/WishList/Get?id=' + id)
+                        .then(res => res.json())
+                        .then(
+                            result => {
+                                var index = this.state.wishItems.findIndex(x => x.ID === id);
+                                this.state.wishItems[index] = result[0];
+
+                                this.setState({
+                                    wishItems: this.state.wishItems
+                                });
+                            }
+                        );
+                }
+            )
+            .catch(
+                error => {
+                    alert(error);
+                }
+            )
     }
 
     render() {
@@ -102,7 +121,7 @@ class WishGallery extends Component {
                                 <img src={wishItem.imgSrc} />
                             </div>
                             <div className="wishItemDetail">
-                                <div style={{ color: !wishItem.status || wishItem.status.toLowerCase() == 'active' ? '#1E90FF' : '#228B22' }}>Status: {wishItem.status}</div>
+                                <div style={{ color: wishItem.status === 0 ? '#1E90FF' : '#228B22' }}>Status: {wishItem.status === 0 ? 'Active' : 'Completed'}</div>
                                 <ul style={{ listStyle: 'none', paddingLeft: '0px' }}>
                                     <li>Name: {wishItem.name}</li>
                                     <li>Type: {wishItem.type}</li>
@@ -119,10 +138,12 @@ class WishGallery extends Component {
                                 </div>
                             </div>
                         </div>
-                        <div className="operationBar">
-                            <Button bsStyle="success" onClick={() => { this.onComplete(wishItem.ID) }}>Complete</Button>
-                            <Button bsStyle="danger" onClick={() => { this.onDelete(wishItem.ID) }}>Delete</Button>
-                        </div>
+                        {wishItem.status === 0 ?
+                            <div className="operationBar">
+                                <Button bsStyle="success" onClick={() => { this.onComplete(wishItem.ID) }}>Complete</Button>
+                                <Button bsStyle="danger" onClick={() => { this.onDelete(wishItem.ID) }}>Delete</Button>
+                            </div>
+                            : null}
                     </div>
                 );
 

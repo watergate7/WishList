@@ -13,11 +13,13 @@
           <Property Name="name" Type="nvarchar" MaxLength="250" Nullable="false" />
           <Property Name="type" Type="nvarchar" MaxLength="250" />
           <Property Name="brand" Type="nvarchar" MaxLength="250" />
-          <Property Name="comment" Type="varchar" MaxLength="500" />
+          <Property Name="comment" Type="nvarchar" MaxLength="500" />
           <Property Name="price" Type="int" />
           <Property Name="imageId" Type="varchar" MaxLength="100" />
           <Property Name="currency" Type="nvarchar" MaxLength="20" />
-          <Property Name="no" Type="varchar" MaxLength="250" />
+          <Property Name="no" Type="nvarchar" MaxLength="250" />
+          <Property Name="status" Type="int" Nullable="false" />
+          <Property Name="feedback" Type="nvarchar" MaxLength="500" />
         </EntityType>
         <EntityContainer Name="WishlistModelStoreContainer">
           <EntitySet Name="WishItem" EntityType="Self.WishItem" Schema="dbo" store:Type="Tables" />
@@ -34,11 +36,13 @@
           <Property Name="name" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="type" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
           <Property Name="brand" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="no" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="no" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
           <Property Name="price" Type="Int32" />
           <Property Name="imageId" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="currency" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
-          <Property Name="comment" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="comment" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="status" Type="Int32" Nullable="false" />
+          <Property Name="feedback" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityContainer Name="WishlistEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="WishItem" EntityType="Self.WishItem" />
@@ -52,6 +56,8 @@
           <EntitySetMapping Name="WishItem">
             <EntityTypeMapping TypeName="WishlistModel.WishItem">
               <MappingFragment StoreEntitySet="WishItem">
+                <ScalarProperty Name="feedback" ColumnName="feedback" />
+                <ScalarProperty Name="status" ColumnName="status" />
                 <ScalarProperty Name="comment" ColumnName="comment" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="name" ColumnName="name" />

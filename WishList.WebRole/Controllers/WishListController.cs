@@ -18,45 +18,76 @@ namespace WishList.WebRole.Controllers
 {
     public class WishListController : ApiController
     {
-        private WishlistEntities db = new WishlistEntities();
+        private WishlistEntities db;
 
-        private AzureBlobStorageProvider blobProvider = new AzureBlobStorageProvider(ConfigurationManager.AppSettings["AzureBlobStorage"]);
+        private AzureBlobStorageProvider blobProvider;
 
         private const string blobContainer = "images";
 
-        [HttpGet]
-        public async Task<List<WishItemContract>> Get()
-        {
-            db.Database.CommandTimeout = 60 * 1;
-            List<WishItemContract> items = (from item in db.WishItem
-                                            select new WishItemContract
-                                            {
-                                                ID = item.ID,
-                                                name = item.name,
-                                                type = item.type,
-                                                brand = item.brand,
-                                                no = item.no,
-                                                comment = item.comment,
-                                                price = item.price,
-                                                currency = item.currency,
-                                                imageId = item.imageId,
-                                            }).ToList();
+        private static Dictionary<string, string> imageCache = new Dictionary<string, string>();
 
-            foreach (WishItemContract item in items)
+        public WishListController()
+        {
+            db = new WishlistEntities();
+            db.Database.CommandTimeout = 60 * 1;
+            blobProvider = new AzureBlobStorageProvider(ConfigurationManager.AppSettings["AzureBlobStorage"]); ;
+        }
+
+        [HttpGet]
+        public async Task<List<WishItemContract>> Get(int? id = null)
+        {
+            IQueryable<WishItemContract> items = (from item in db.WishItem
+                                                  select new WishItemContract
+                                                  {
+                                                      ID = item.ID,
+                                                      name = item.name,
+                                                      type = item.type,
+                                                      brand = item.brand,
+                                                      no = item.no,
+                                                      comment = item.comment,
+                                                      status = item.status,
+                                                      feedback = item.feedback,
+                                                      price = item.price,
+                                                      currency = item.currency,
+                                                      imageId = item.imageId,
+                                                  });
+
+            if (id.HasValue)
             {
-                if (await blobProvider.ExistsAsync(WishListController.blobContainer, item.imageId))
+                items = items.Where(x => x.ID == id.Value);
+            }
+
+            List<WishItemContract> selectedItems = items.ToList();
+
+            foreach (WishItemContract item in selectedItems)
+            {
+                if (item.imageId == null)
                 {
-                    Stream stream = await blobProvider.GetBlobDataAsync(WishListController.blobContainer, item.imageId);
-                    using (MemoryStream ms = new MemoryStream())
+                    continue;
+                }
+
+                if (WishListController.imageCache.ContainsKey(item.imageId))
+                {
+                    item.base64 = WishListController.imageCache[item.imageId];
+                }
+                else
+                {
+                    if (await blobProvider.ExistsAsync(WishListController.blobContainer, item.imageId))
                     {
-                        stream.Position = 0;
-                        stream.CopyTo(ms);
-                        item.base64 = Convert.ToBase64String(ms.ToArray());
+                        Stream stream = await blobProvider.GetBlobDataAsync(WishListController.blobContainer, item.imageId);
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            stream.Position = 0;
+                            stream.CopyTo(ms);
+                            item.base64 = Convert.ToBase64String(ms.ToArray());
+                        }
+
+                        WishListController.imageCache.Add(item.imageId, item.base64);
                     }
                 }
             }
 
-            return items;
+            return selectedItems;
         }
 
         [HttpPost]
@@ -82,9 +113,10 @@ namespace WishList.WebRole.Controllers
                 await Request.Content.ReadAsMultipartAsync(provider);
 
                 // Get uploaded image
-                Guid guid = Guid.NewGuid();
+                Guid? guid = null;
                 if (provider.FileData.Count > 0)
                 {
+                    guid = Guid.NewGuid();
                     MultipartFileData file = provider.FileData[0];
                     FileStream fs = new FileStream(file.LocalFileName, FileMode.Open);
                     BinaryReader br = new BinaryReader(fs);
@@ -106,6 +138,14 @@ namespace WishList.WebRole.Controllers
                     // Save blob to azure blob storage
                     await blobProvider.SaveBlobDataAsync(WishListController.blobContainer, guid.ToString(), compressed);
 
+                    // Add to cache
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        compressed.Position = 0;
+                        compressed.CopyTo(ms);
+                        WishListController.imageCache.Add(guid.ToString(), Convert.ToBase64String(ms.ToArray()));
+                    }
+
                     fs.Close();
                     br.Close();
                 }
@@ -119,7 +159,8 @@ namespace WishList.WebRole.Controllers
                     comment = provider.FormData["comment"],
                     price = provider.FormData["price"] == null ? null : (int?)int.Parse(provider.FormData["price"]),
                     currency = provider.FormData["currency"],
-                    imageId = guid.ToString()
+                    status = 0,
+                    imageId = guid.HasValue ? guid.ToString() : null
                 };
 
                 db.WishItem.Add(wishItem);
@@ -135,6 +176,29 @@ namespace WishList.WebRole.Controllers
             {
                 return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
             }
+        }
+
+        [HttpPost]
+        public HttpResponseMessage Complete([FromUri] int id, [FromBody]string feedback)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            IQueryable<WishItem> toCompleteItems = db.WishItem.Where(x => x.ID == id);
+
+            if (toCompleteItems.Count() <= 0)
+            {
+                response.Content = new StringContent("Specified item id not found.");
+                response.StatusCode = HttpStatusCode.NotFound;
+                return response;
+            }
+
+            WishItem toCompleteItem = toCompleteItems.First();
+            toCompleteItem.status = 1;
+            toCompleteItem.feedback = feedback;
+            db.SaveChanges();
+
+            response.Content = new StringContent("Complete item successfully.");
+            response.StatusCode = HttpStatusCode.OK;
+            return response;
         }
 
         [HttpPost]
@@ -154,8 +218,17 @@ namespace WishList.WebRole.Controllers
             db.WishItem.Remove(toDeleteItem);
             db.SaveChanges();
 
-            // delete blob from azure blob storage
-            await blobProvider.DeleteBlobDataAsync(WishListController.blobContainer, toDeleteItem.imageId);
+            if (toDeleteItem.imageId != null)
+            {
+                // delete from cache
+                if (WishListController.imageCache.ContainsKey(toDeleteItem.imageId))
+                {
+                    WishListController.imageCache.Remove(toDeleteItem.imageId);
+                }
+
+                // delete blob from azure blob storage
+                await blobProvider.DeleteBlobDataAsync(WishListController.blobContainer, toDeleteItem.imageId);
+            }
 
             response.Content = new StringContent("Delete item successfully.");
             response.StatusCode = HttpStatusCode.OK;

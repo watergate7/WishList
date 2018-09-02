@@ -14,6 +14,8 @@ namespace WishList.WebRole.Models
         public string brand { get; set; }
         public string no { get; set; }
         public string comment { get; set; }
+        public int status { get; set; }
+        public string feedback { get; set; }
         public Nullable<int> price { get; set; }
         public string currency { get; set; }
         public string imageId { get; set; }

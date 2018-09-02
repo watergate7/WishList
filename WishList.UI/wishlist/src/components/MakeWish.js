@@ -7,7 +7,7 @@ class MakeWish extends Component {
         super(props);
         this.state = { name: '', type: '', brand: '', no: '', comment: '', price: undefined, picture: null };
         var parsed = queryString.parse(this.props.location.search.slice(1));
-        if (parsed.afterAdd == 1) {
+        if (parsed.afterAdd === 1) {
             this.state.afterAdd = "inline";
         }
         else {
@@ -17,12 +17,12 @@ class MakeWish extends Component {
         this.handleChange = this.handleChange.bind(this);
     }
 
-    handleChange(event) {
+    handleChange(event) {      
         const name = event.target.id;
-        const value = name == "picture" ? event.target.files[0] : event.target.value;
+        const value = name === "picture" ? event.target.files[0] : event.target.value;
         this.setState({ [name]: value });
 
-        if (this.state.afterAdd == "inline") {
+        if (this.state.afterAdd === "inline") {
             this.state.afterAdd = "none";
         }
     }

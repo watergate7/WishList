@@ -23,5 +23,7 @@ namespace WishList.WebRole.Models
         public string imageId { get; set; }
         public string currency { get; set; }
         public string comment { get; set; }
+        public int status { get; set; }
+        public string feedback { get; set; }
     }
 }
