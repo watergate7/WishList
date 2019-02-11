@@ -1,3 +1,28 @@
+.bodyContainer{
+    margin:0px;
+}
+
+.toolBar{
+    margin-left: 10px;
+    padding-left: 0px;
+}
+
+.toolBar .selectBar .btn{
+    width:122px;
+    margin-bottom: 10px;
+}
+
+.toolBar .searchBar input{
+    height:34px;
+    padding:5px;
+    width:148px;
+}
+
+.toolBar .searchBar select{
+    height:34px;
+    padding:5px;
+}
+
 .wishContainer{
     display: flex;
     flex-flow: row wrap;
@@ -6,7 +31,7 @@
 
 .wishItem{
     flex: 0 0 32%;
-    margin: 10px;
+    margin:10px;
     background-color:#ffffff;
 }
 
